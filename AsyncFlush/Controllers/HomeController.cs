@@ -6,28 +6,17 @@ namespace AsyncFlush.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
             ViewBag.Title = "Async Flush";
             ViewBag.HeadFlushed = true;
 
             PartialView("_Head").ExecuteResult(ControllerContext);
+            await Task.Factory.FromAsync(Response.BeginFlush, Response.EndFlush, null);
 
-            ViewResult bodyResult = null;
+            Thread.Sleep(1000);
 
-            Response.BeginFlush(ar =>
-            {
-                Response.EndFlush(ar);
-
-                Thread.Sleep(1000);
-
-                // var model = (MyViewModel)ar.AsyncState // get model here from passed state
-
-                bodyResult = View();
-            }, 
-            null); // you should pass the model here, if there's one already
-
-            return bodyResult;
+            return View();
         }
 
         public ActionResult About()
